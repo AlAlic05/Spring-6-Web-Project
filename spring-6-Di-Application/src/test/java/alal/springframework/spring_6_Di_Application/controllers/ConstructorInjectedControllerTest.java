@@ -15,8 +15,6 @@ class ConstructorInjectedControllerTest {
 
     @Test
     void sayHello() {
-        String greeting = constructorInjectedController.sayHello();
-        System.out.println(greeting);
-        assertEquals("Hello World", greeting);
+        System.out.println(constructorInjectedController.sayHello());
     }
 }

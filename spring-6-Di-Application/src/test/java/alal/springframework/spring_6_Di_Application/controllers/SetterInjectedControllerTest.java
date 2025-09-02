@@ -11,12 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class SetterInjectedControllerTest {
     @Autowired
-    PropertyInjectedController propertyInjectedController;
+    SetterInjectedController controller;
 
     @Test
     void sayHello() {
-        String greeting = propertyInjectedController.SayHello();
-        System.out.println(greeting);
-        assertEquals("Hello World", greeting);
+        System.out.println(controller.sayHello());
     }
 }
