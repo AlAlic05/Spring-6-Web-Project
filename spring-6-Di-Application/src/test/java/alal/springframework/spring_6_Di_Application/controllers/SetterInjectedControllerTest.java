@@ -3,18 +3,16 @@ package alal.springframework.spring_6_Di_Application.controllers;
 import alal.springframework.spring_6_Di_Application.services.GreetingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 class SetterInjectedControllerTest {
-
+    @Autowired
     PropertyInjectedController propertyInjectedController;
 
-    @BeforeEach
-    void SetUp() {
-        propertyInjectedController = new PropertyInjectedController();
-        propertyInjectedController.greetingService = new GreetingServiceImpl();
-    }
     @Test
     void sayHello() {
         String greeting = propertyInjectedController.SayHello();
