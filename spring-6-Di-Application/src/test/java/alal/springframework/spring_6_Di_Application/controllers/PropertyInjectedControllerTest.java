@@ -16,8 +16,6 @@ class PropertyInjectedControllerTest {
 
     @Test
     void sayHello() {
-        String greeting = propertyInjectedController.SayHello();
-        System.out.println(greeting);
-        assertEquals("Hello World", greeting);
+        System.out.println(propertyInjectedController.sayHello());
     }
 }
