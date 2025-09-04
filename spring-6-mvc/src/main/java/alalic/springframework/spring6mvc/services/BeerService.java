@@ -3,12 +3,13 @@ package alalic.springframework.spring6mvc.services;
 import alalic.springframework.spring6mvc.model.Beer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BeerService {
     List<Beer> listBeers();
 
-    Beer getBearById(UUID id);
+    Optional<Beer> getBearById(UUID id);
 
     Beer saveNewBeer(Beer beer);
 
