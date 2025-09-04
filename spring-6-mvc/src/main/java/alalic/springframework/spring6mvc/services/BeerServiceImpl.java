@@ -87,7 +87,7 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void updateBeer(UUID beerId, Beer beer) {
+    public void updateBeerById(UUID beerId, Beer beer) {
         Beer existing = beers.get(beerId);
         existing.setBeerName(beer.getBeerName());
         existing.setBeerStyle(beer.getBeerStyle());
@@ -100,12 +100,12 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void deleteById(UUID beerId) {
+    public void deleteBeerById(UUID beerId) {
         beers.remove(beerId);
     }
 
     @Override
-    public void patchBeer(UUID beerId, Beer beer) {
+    public void patchBeerById(UUID beerId, Beer beer) {
         Beer existing = beers.get(beerId);
         if (beer.getBeerName() != null) {
             existing.setBeerName(beer.getBeerName());
