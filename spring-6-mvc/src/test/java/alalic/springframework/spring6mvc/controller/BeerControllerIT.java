@@ -1,11 +1,14 @@
 package alalic.springframework.spring6mvc.controller;
 
 import alalic.springframework.spring6mvc.entities.Beer;
+import alalic.springframework.spring6mvc.mappers.BeerMapper;
 import alalic.springframework.spring6mvc.model.BeerDTO;
 import alalic.springframework.spring6mvc.repositories.BeerRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,9 @@ class BeerControllerIT {
 
     @Autowired
     BeerRepo repository;
+
+    @Autowired
+    BeerMapper mapper;
 
     @Test
     void testLListBeers(){
@@ -50,6 +56,69 @@ class BeerControllerIT {
     void testBeerIdIsNotFound() {
         assertThrows(NotFoundException.class, () -> {
             controller.getBeerById(UUID.randomUUID());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void saveNewBeerTest() {
+        BeerDTO beerDTO = BeerDTO.builder()
+                .beerName("New Beer")
+                .build();
+
+        ResponseEntity responseEntity = controller.handlePost(beerDTO);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo((HttpStatusCode.valueOf(201)));
+        assertThat(responseEntity.getHeaders().getLocation()).isNotNull();
+
+        String[] locationUUID = responseEntity.getHeaders().getLocation().getPath().split("/");
+        UUID savedUUID = UUID.fromString(locationUUID[4]);
+
+        Beer beer = repository.findById(savedUUID).get();
+        assertThat(beer).isNotNull();
+    }
+    
+    @Rollback
+    @Transactional
+    @Test
+    void updateExistingBeer() {
+        Beer beer = repository.findAll().get(0);
+        BeerDTO beerDTO = mapper.beerToBeerDTO(beer);
+        beerDTO.setId(null);
+        beerDTO.setVersion(null);
+        final String beerName = "Updated Beer";
+        beerDTO.setBeerName(beerName);
+
+        ResponseEntity responseEntity = controller.updateById(beer.getId(), beerDTO);
+        assertThat(responseEntity.getStatusCode()).isEqualTo((HttpStatusCode.valueOf(204)));
+
+        Beer updatedBeer = repository.findById(beer.getId()).get();
+        assertThat(updatedBeer.getBeerName()).isEqualTo(beerName);
+    }
+
+    @Test
+    void testUpdateNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            controller.updateById(UUID.randomUUID(), BeerDTO.builder().build());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void deleteByIdNotFound() {
+        Beer beer = repository.findAll().get(0);
+        ResponseEntity responseEntity = controller.deleteBeerById(beer.getId());
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo((HttpStatusCode.valueOf(204)));
+        assertThat(repository.findById(beer.getId()).isEmpty());
+    }
+
+    @Test
+    void testDeleteNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            controller.deleteBeerById(UUID.randomUUID());
         });
     }
 }

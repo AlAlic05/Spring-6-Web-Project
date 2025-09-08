@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Primary
@@ -38,17 +40,34 @@ public class CustomerServiceJPA implements CustomerService {
 
     @Override
     public CustomerDTO savedCustomer(CustomerDTO customer) {
-        return null;
+        return customerMapper.customerToCustomerDto(customerRepo.save(customerMapper.customerDtoToCustomer(customer)));
     }
 
     @Override
-    public void updateCustomerById(UUID customerId, CustomerDTO customer) {
+    public Optional<CustomerDTO> updateCustomerById(UUID customerId, CustomerDTO customer) {
+        AtomicReference<Optional<CustomerDTO>> atomicReference = new AtomicReference<>();
 
+        customerRepo.findById(customerId).ifPresentOrElse(foundCustomer -> {
+            foundCustomer.setCustomerName(customer.getCustomerName());
+            foundCustomer.setCreatedDate(customer.getCreatedDate());
+            foundCustomer.setLastModifiedDate(LocalDateTime.now());
+            foundCustomer.setVersion(customer.getVersion());
+            atomicReference.set(Optional.of(customerMapper
+                    .customerToCustomerDto(customerRepo.save(foundCustomer))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
     @Override
-    public void deleteCustomerById(UUID beerId) {
-
+    public Boolean deleteCustomerById(UUID beerId) {
+        if (customerRepo.existsById(beerId)) {
+            customerRepo.existsById(beerId);
+            return true;
+        }
+        return false;
     }
 
     @Override

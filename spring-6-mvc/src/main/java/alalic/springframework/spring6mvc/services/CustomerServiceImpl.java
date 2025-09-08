@@ -61,7 +61,7 @@ public class CustomerServiceImpl implements CustomerService {
             .createdDate(LocalDateTime.now())
             .lastModifiedDate(LocalDateTime.now())
             .customerName(customer.getCustomerName())
-            .version(1)
+            .version(customer.getVersion())
             .build();
 
         customers.put(savedCustomer.getId(), savedCustomer);
@@ -69,18 +69,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateCustomerById(UUID customerId, CustomerDTO customer) {
+    public Optional<CustomerDTO> updateCustomerById(UUID customerId, CustomerDTO customer) {
         CustomerDTO existing = customers.get(customerId);
         existing.setCustomerName(customer.getCustomerName());
         existing.setLastModifiedDate(LocalDateTime.now());
         existing.setVersion(existing.getVersion() + 1);
 
         customers.put(existing.getId(), existing);
+        return null;
     }
 
     @Override
-    public void deleteCustomerById(UUID beerId) {
+    public Boolean deleteCustomerById(UUID beerId) {
         customers.remove(beerId);
+        return true;
     }
 
     @Override

@@ -8,6 +8,8 @@ import alalic.springframework.spring6mvc.repositories.CustomerRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,51 @@ class CustomerControllerIT {
     void testCustomerIdIsNotFound() {
         assertThrows(NotFoundException.class, () -> {
             controller.getCustomerById(UUID.randomUUID());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void saveNewCustomer() {
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .customerName("New CUSTOMER")
+                .build();
+
+        ResponseEntity responseEntity = controller.handlePost(customerDTO);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo((HttpStatusCode.valueOf(201)));
+        assertThat(responseEntity.getHeaders().getLocation()).isNotNull();
+
+        String[] locationUUID = responseEntity.getHeaders().getLocation().getPath().split("/");
+        UUID savedUUID = UUID.fromString(locationUUID[4]);
+
+        Customer customer = repository.findById(savedUUID).get();
+        assertThat(customer).isNotNull();
+    }
+
+    @Test
+    void testUpdateNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            controller.updateById(UUID.randomUUID(), CustomerDTO.builder().build());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void deleteByIdNotFound() {
+        Customer customer = repository.findAll().get(0);
+        ResponseEntity responseEntity = controller.deleteById(customer.getId());
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo((HttpStatusCode.valueOf(204)));
+        assertThat(repository.findById(customer.getId()).isEmpty());
+    }
+
+    @Test
+    void testDeleteNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            controller.deleteById(UUID.randomUUID());
         });
     }
 
