@@ -1,8 +1,6 @@
 package alalic.springframework.spring6mvc.services;
 
-import alalic.springframework.spring6mvc.model.Beer;
-import alalic.springframework.spring6mvc.model.Customer;
-import lombok.Builder;
+import alalic.springframework.spring6mvc.model.CustomerDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,26 +11,26 @@ import java.util.*;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private Map<UUID, Customer> customers;
+    private Map<UUID, CustomerDTO> customers;
 
     public CustomerServiceImpl() {
         this.customers=new HashMap<>();
 
-        Customer c1 = Customer.builder()
+        CustomerDTO c1 = CustomerDTO.builder()
                 .id(UUID.randomUUID())
                 .customerName("Sebastian Fettl")
                 .version(1)
                 .createdDate(LocalDateTime.now())
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
-        Customer c2 = Customer.builder()
+        CustomerDTO c2 = CustomerDTO.builder()
                 .id(UUID.randomUUID())
                 .customerName("Manuelsn")
                 .version(2)
                 .createdDate(LocalDateTime.now())
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
-        Customer c3 = Customer.builder()
+        CustomerDTO c3 = CustomerDTO.builder()
                 .id(UUID.randomUUID())
                 .customerName("John Doe")
                 .version(3)
@@ -46,19 +44,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Customer> listCustomer() {
+    public List<CustomerDTO> listCustomer() {
         return new ArrayList<>(customers.values());
     }
 
     @Override
-    public Optional<Customer> getCustomerById(UUID id) {
+    public Optional<CustomerDTO> getCustomerById(UUID id) {
         log.debug("Get customer by id - in service");
         return Optional.of(customers.get(id));
     }
 
     @Override
-    public Customer savedCustomer(Customer customer) {
-        Customer savedCustomer = Customer.builder()
+    public CustomerDTO savedCustomer(CustomerDTO customer) {
+        CustomerDTO savedCustomer = CustomerDTO.builder()
             .id(UUID.randomUUID())
             .createdDate(LocalDateTime.now())
             .lastModifiedDate(LocalDateTime.now())
@@ -71,8 +69,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateCustomerById(UUID customerId, Customer customer) {
-        Customer existing = customers.get(customerId);
+    public void updateCustomerById(UUID customerId, CustomerDTO customer) {
+        CustomerDTO existing = customers.get(customerId);
         existing.setCustomerName(customer.getCustomerName());
         existing.setLastModifiedDate(LocalDateTime.now());
         existing.setVersion(existing.getVersion() + 1);
@@ -86,8 +84,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void patchCustomerById(UUID customerId, Customer customer) {
-        Customer existing = customers.get(customerId);
+    public void patchCustomerById(UUID customerId, CustomerDTO customer) {
+        CustomerDTO existing = customers.get(customerId);
 
         if (customer.getCustomerName() != null) {
             existing.setCustomerName(customer.getCustomerName());

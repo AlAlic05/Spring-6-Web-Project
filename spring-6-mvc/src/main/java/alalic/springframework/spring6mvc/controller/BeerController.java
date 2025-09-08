@@ -1,6 +1,6 @@
 package alalic.springframework.spring6mvc.controller;
 
-import alalic.springframework.spring6mvc.model.Beer;
+import alalic.springframework.spring6mvc.model.BeerDTO;
 import alalic.springframework.spring6mvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class BeerController {
     private final BeerService beerService;
 
     @PatchMapping(BEER_PATH_ID)
-    public ResponseEntity updateBeerPatchById(@PathVariable UUID beerId, @RequestBody Beer beer) {
+    public ResponseEntity updateBeerPatchById(@PathVariable UUID beerId, @RequestBody BeerDTO beer) {
         beerService.patchBeerById(beerId, beer);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -35,14 +35,14 @@ public class BeerController {
     }
 
     @PutMapping(BEER_PATH_ID)
-    public ResponseEntity updateById(@PathVariable UUID beerId, @RequestBody Beer beer) {
+    public ResponseEntity updateById(@PathVariable UUID beerId, @RequestBody BeerDTO beer) {
         beerService.updateBeerById(beerId, beer);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(BEER_PATH)
-    public ResponseEntity handlePost(@RequestBody Beer beer) {
-        Beer savedBeer = beerService.saveNewBeer(beer);
+    public ResponseEntity handlePost(@RequestBody BeerDTO beer) {
+        BeerDTO savedBeer = beerService.saveNewBeer(beer);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", BEER_PATH + "/" + savedBeer.getId().toString());
@@ -51,12 +51,12 @@ public class BeerController {
     }
 
     @GetMapping(value = BEER_PATH)
-    public List<Beer> listBeers () {
+    public List<BeerDTO> listBeers () {
       return beerService.listBeers();
     };
 
     @GetMapping(value = BEER_PATH_ID)
-    public Beer getBeerById(@PathVariable UUID beerId) {
+    public BeerDTO getBeerById(@PathVariable UUID beerId) {
         log.debug("Get Beer by Id - in controller");
         return beerService.getBearById(beerId).orElseThrow(NotFoundException::new);
     }

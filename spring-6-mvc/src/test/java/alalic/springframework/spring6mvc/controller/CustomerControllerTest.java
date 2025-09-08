@@ -1,6 +1,6 @@
 package alalic.springframework.spring6mvc.controller;
 
-import alalic.springframework.spring6mvc.model.Customer;
+import alalic.springframework.spring6mvc.model.CustomerDTO;
 import alalic.springframework.spring6mvc.services.CustomerService;
 import alalic.springframework.spring6mvc.services.CustomerServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +40,7 @@ class CustomerControllerTest {
     CustomerServiceImpl customerServiceImpl;
 
     @Captor
-    ArgumentCaptor<Customer> customerCaptor;
+    ArgumentCaptor<CustomerDTO> customerCaptor;
 
     @Captor
     ArgumentCaptor<UUID> uuidCaptor;
@@ -52,7 +52,7 @@ class CustomerControllerTest {
 
     @Test
     void testPatchBeer() throws Exception {
-        Customer customer = customerServiceImpl.listCustomer().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomer().get(0);
 
         Map<String, Object> beerMap = new HashMap<>();
         beerMap.put("customerName", "Updated Name");
@@ -70,7 +70,7 @@ class CustomerControllerTest {
 
     @Test
     void testDeleteCustomer() throws Exception {
-        Customer customer = customerServiceImpl.listCustomer().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomer().get(0);
 
         mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, customer.getId())
                 .accept(MediaType.APPLICATION_JSON))
@@ -82,7 +82,7 @@ class CustomerControllerTest {
 
     @Test
     void testUpdateCustomer() throws Exception {
-        Customer customer = customerServiceImpl.listCustomer().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomer().get(0);
 
         mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, customer.getId())
                         .accept(MediaType.APPLICATION_JSON)
@@ -90,16 +90,16 @@ class CustomerControllerTest {
                         .content(objectMapper.writeValueAsString(customer)))
                 .andExpect(status().isNoContent());
 
-        verify(customerService).updateCustomerById(any(UUID.class), any(Customer.class));
+        verify(customerService).updateCustomerById(any(UUID.class), any(CustomerDTO.class));
     }
 
     @Test
     void testCreatedNewCustomer() throws Exception {
-        Customer customer = customerServiceImpl.listCustomer().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomer().get(0);
         customer.setVersion(null);
         customer.setId(null);
 
-        given(customerService.savedCustomer(any(Customer.class))).willReturn(customerServiceImpl.listCustomer().get(1));
+        given(customerService.savedCustomer(any(CustomerDTO.class))).willReturn(customerServiceImpl.listCustomer().get(1));
         mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
