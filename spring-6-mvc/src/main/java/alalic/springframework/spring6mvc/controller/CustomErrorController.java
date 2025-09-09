@@ -1,7 +1,5 @@
 package alalic.springframework.spring6mvc.controller;
 
-import jakarta.validation.ConstraintViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,30 +14,18 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class CustomErrorController {
 
-    @ExceptionHandler(TransactionSystemException.class)
-    ResponseEntity handleJpaVaildations(TransactionSystemException exception){
-        ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();
-
-        if(exception.getCause() instanceof ConstraintViolationException){
-            ConstraintViolationException ve = (ConstraintViolationException) exception.getCause().getCause();
-            List errors = ve.getConstraintViolations().stream()
-                    .map(constraintViolation ->{
-                        Map<String, String> errMap = new HashMap<>();
-                        errMap.put(constraintViolation.getPropertyPath().toString(),
-                                constraintViolation.getMessage());
-                        return errMap;
-                    }).collect(Collectors.toList());
-            return responseEntity.body(errors);
-        }
-        return responseEntity.build();
+    @ExceptionHandler
+    ResponseEntity handleJPAViolations(TransactionSystemException exception){
+        return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity handleBindErrors(MethodArgumentNotValidException exception) {
+    ResponseEntity handleBindErrors(MethodArgumentNotValidException exception){
+
         List errorList = exception.getFieldErrors().stream()
-                .map(fielderror -> {
-                    Map<String, String> errorMap = new HashMap<>();
-                    errorMap.put(fielderror.getField(), fielderror.getDefaultMessage());
+                .map(fieldError -> {
+                    Map<String, String > errorMap = new HashMap<>();
+                    errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());
                     return errorMap;
                 }).collect(Collectors.toList());
 

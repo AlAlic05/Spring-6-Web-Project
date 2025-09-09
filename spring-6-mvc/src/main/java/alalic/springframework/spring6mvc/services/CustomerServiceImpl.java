@@ -3,6 +3,7 @@ package alalic.springframework.spring6mvc.services;
 import alalic.springframework.spring6mvc.model.CustomerDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -86,23 +87,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void patchCustomerById(UUID customerId, CustomerDTO customer) {
+    public Optional<CustomerDTO> patchCustomerById(UUID customerId, CustomerDTO customer) {
         CustomerDTO existing = customers.get(customerId);
 
-        if (customer.getCustomerName() != null) {
+        if (StringUtils.hasText(customer.getCustomerName())) {
             existing.setCustomerName(customer.getCustomerName());
         }
-        if (customer.getVersion() != null) {
-            existing.setVersion(customer.getVersion());
-        }
-        if (customer.getCreatedDate() != null) {
-            existing.setCreatedDate(customer.getCreatedDate());
-        }
-        if( customer.getLastModifiedDate() != null) {
-            existing.setLastModifiedDate(customer.getLastModifiedDate());
-        }
 
-
-        customers.put(existing.getId(), existing);
+        return Optional.of(existing);
     }
 }

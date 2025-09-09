@@ -66,6 +66,7 @@ class BeerControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(beerService).patchBeerById(uuidCaptor.capture(), beerCaptor.capture());
+
         assertThat(beer.getId()).isEqualTo(uuidCaptor.getValue());
         assertThat(beerMap.get("beerName")).isEqualTo(beerCaptor.getValue().getBeerName());
     }

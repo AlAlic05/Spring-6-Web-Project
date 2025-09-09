@@ -68,8 +68,7 @@ public class BeerServiceJPA implements BeerService {
     }
 
     @Override
-    public void patchBeerById(UUID beerId, BeerDTO beer) {
-
+    public Optional<BeerDTO> patchBeerById(UUID beerId, BeerDTO beer) {
         AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
 
         beerRepo.findById(beerId).ifPresentOrElse(foundBeer -> {
@@ -93,5 +92,6 @@ public class BeerServiceJPA implements BeerService {
         }, () -> {
             atomicReference.set(Optional.empty());
         });
+        return atomicReference.get();
     }
 }

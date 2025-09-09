@@ -159,17 +159,12 @@ class BeerControllerIT {
         Beer beer = beerRepo.findAll().get(0);
 
         Map<String, Object> beerMap = new HashMap<>();
-        beerMap.put("beerName", "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        beerMap.put("beerName", "New Name 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
 
-        MvcResult result = mockMvc.perform(patch(BeerController.BEER_PATH_ID, beer.getId())
+        mockMvc.perform(patch(BeerController.BEER_PATH_ID, beer.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerMap)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(5)))
-                .andReturn();
-
-
-        System.out.println(result.getResponse().getContentAsString());
+                .andExpect(status().isBadRequest());
     }
 }

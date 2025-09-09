@@ -4,6 +4,7 @@ import alalic.springframework.spring6mvc.model.BeerDTO;
 import alalic.springframework.spring6mvc.model.BeerStyle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -96,7 +97,6 @@ public class BeerServiceImpl implements BeerService {
         existing.setQuantityOnHand(beer.getQuantityOnHand());
         existing.setUpdateDate(LocalDateTime.now());
 
-        beers.put(existing.getId(), existing);
         return Optional.of(existing);
     }
 
@@ -107,25 +107,28 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void patchBeerById(UUID beerId, BeerDTO beer) {
+    public Optional<BeerDTO> patchBeerById(UUID beerId, BeerDTO beer) {
         BeerDTO existing = beers.get(beerId);
-        if (beer.getBeerName() != null) {
+        if (StringUtils.hasText(beer.getBeerName())){
             existing.setBeerName(beer.getBeerName());
         }
+
         if (beer.getBeerStyle() != null) {
             existing.setBeerStyle(beer.getBeerStyle());
         }
+
         if (beer.getPrice() != null) {
             existing.setPrice(beer.getPrice());
         }
-        if (beer.getUpc() != null) {
-            existing.setUpc(beer.getUpc());
-        }
-        if (beer.getQuantityOnHand() != null) {
+
+        if (beer.getQuantityOnHand() != null){
             existing.setQuantityOnHand(beer.getQuantityOnHand());
         }
-        existing.setUpdateDate(LocalDateTime.now());
 
-        beers.put(existing.getId(), existing);
+        if (StringUtils.hasText(beer.getUpc())) {
+            existing.setUpc(beer.getUpc());
+        }
+
+        return Optional.of(existing);
     }
 }
