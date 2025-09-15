@@ -1,6 +1,7 @@
 package alalic.springframework.spring6mvc.controller;
 
 import alalic.springframework.spring6mvc.model.BeerDTO;
+import alalic.springframework.spring6mvc.model.BeerStyle;
 import alalic.springframework.spring6mvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,8 +59,10 @@ public class BeerController {
     }
 
     @GetMapping(value = BEER_PATH)
-    public List<BeerDTO> listBeers (@RequestParam(required = false) String beerName) {
-      return beerService.listBeers(beerName);
+    public List<BeerDTO> listBeers (@RequestParam(required = false) String beerName,
+                                    @RequestParam(required = false) BeerStyle beerStyle) {
+        log.debug("List Beers - in controller");
+        return beerService.listBeers(beerName, beerStyle);
     };
 
     @GetMapping(value = BEER_PATH_ID)

@@ -3,13 +3,13 @@ package alalic.springframework.spring6mvc.services;
 import alalic.springframework.spring6mvc.entities.Beer;
 import alalic.springframework.spring6mvc.mappers.BeerMapper;
 import alalic.springframework.spring6mvc.model.BeerDTO;
+import alalic.springframework.spring6mvc.model.BeerStyle;
 import alalic.springframework.spring6mvc.repositories.BeerRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,11 +24,20 @@ public class BeerServiceJPA implements BeerService {
     private final BeerMapper beerMapper;
 
     @Override
-    public List<BeerDTO> listBeers(String beerName) {
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
         List<Beer> beerList;
 
-        if(StringUtils.hasText(beerName)){
-            beerList = listBeersByname(beerName);
+        if(StringUtils.hasText(beerName) && beerStyle == null) {
+            beerList = listBeersByName(beerName);
+        }
+        else if (beerName == null && beerStyle != null){
+            beerList = listBeersByStyle(beerStyle);
+        }
+        else if(StringUtils.hasText(beerName) && beerStyle != null){
+            beerList = listBeersByName(beerName)
+                    .stream()
+                    .filter(beer -> beer.getBeerStyle().equals(beerStyle))
+                    .collect(Collectors.toList());
         }
         else {
             beerList = beerRepo.findAll();
@@ -39,8 +48,12 @@ public class BeerServiceJPA implements BeerService {
                 .collect(Collectors.toList());
     }
 
-    List<Beer> listBeersByname(String beerName){
+    List<Beer> listBeersByName(String beerName){
         return beerRepo.findByBeerNameLikeIgnoreCase("%" + beerName + "%");
+    }
+
+    List<Beer> listBeersByStyle(BeerStyle beerStyle){
+        return beerRepo.findByBeerStyle(beerStyle);
     }
 
     @Override
