@@ -4,12 +4,10 @@ import alalic.springframework.spring6mvc.model.BeerDTO;
 import alalic.springframework.spring6mvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,8 +58,8 @@ public class BeerController {
     }
 
     @GetMapping(value = BEER_PATH)
-    public List<BeerDTO> listBeers () {
-      return beerService.listBeers();
+    public List<BeerDTO> listBeers (@RequestParam(required = false) String beerName) {
+      return beerService.listBeers(beerName);
     };
 
     @GetMapping(value = BEER_PATH_ID)
