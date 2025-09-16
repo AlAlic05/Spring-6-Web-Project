@@ -2,13 +2,12 @@ package alalic.springframework.spring6mvc.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.IdGeneratorType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,6 +36,7 @@ public class Customer {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
+    @Builder.Default
     @OneToMany(mappedBy = "customer")
-    private Set<BeerOrder> beerOrders;
+    private Set<BeerOrder> beerOrders = new HashSet<>();
 }
