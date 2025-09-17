@@ -1,0 +1,124 @@
+package guru.springframework.spring6resttemplate.client;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import guru.springframework.spring6resttemplate.config.RestTemplateConfig;
+import guru.springframework.spring6resttemplate.model.BeerDTO;
+import guru.springframework.spring6resttemplate.model.BeerDTOPageImpl;
+import guru.springframework.spring6resttemplate.model.BeerStyle;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.MockServerRestTemplateCustomizer;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.math.BigDecimal;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withAccepted;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+@RestClientTest(BeerClientImpl.class)
+@Import(RestTemplateConfig.class)
+public class BeerClientMockTest {
+
+    private final String URL = "http://localhost:8080";
+
+    @Autowired
+    BeerClient beerClient;
+
+    MockRestServiceServer server;
+
+    @Autowired
+    RestTemplateBuilder restTemplateBuilder;
+
+    @Mock
+    RestTemplateBuilder mockRestTemplateBuilder = new RestTemplateBuilder(new MockServerRestTemplateCustomizer());
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    BeerDTO dto;
+    String dtoJson;
+
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        server = MockRestServiceServer.bindTo(restTemplate).build();
+        when(mockRestTemplateBuilder.build()).thenReturn(restTemplate);
+        beerClient = new BeerClientImpl(mockRestTemplateBuilder);
+
+        dto = getBeerDto();
+        dtoJson = objectMapper.writeValueAsString(dto);
+    }
+
+    @Test
+    void testCreateBeer() {
+
+        URI uri = UriComponentsBuilder.fromPath(BeerClientImpl.GET_BEER_BY_ID_PATH)
+                        .build(dto.getId());
+
+        server.expect(method(HttpMethod.POST))
+                .andExpect(requestTo( URL + BeerClientImpl.GET_BEER_PATH))
+                .andRespond(withAccepted().location(uri));
+
+        server.expect(method(HttpMethod.GET))
+                .andExpect(requestToUriTemplate(URL + BeerClientImpl.GET_BEER_BY_ID_PATH, dto.getId()))
+                .andRespond(withSuccess(dtoJson, MediaType.APPLICATION_JSON));
+
+        BeerDTO returnedDto = beerClient.createBeer(dto);
+        assertThat(returnedDto.getId()).isEqualTo(dto.getId());
+    }
+
+    @Test
+    void testGetBeerById() {
+
+        server.expect(method(HttpMethod.GET))
+                .andExpect(requestToUriTemplate(URL + BeerClientImpl.GET_BEER_BY_ID_PATH, dto.getId()))
+                .andRespond(withSuccess(dtoJson, MediaType.APPLICATION_JSON));
+
+        BeerDTO responseDto = beerClient.getBeerById(dto.getId());
+        assertThat(responseDto.getId()).isEqualTo(dto.getId());
+    }
+
+    @Test
+    void testListBeers() {
+        server.expect(method(HttpMethod.GET))
+                .andExpect(requestTo(URL + BeerClientImpl.GET_BEER_PATH))
+                .andRespond(withSuccess(dtoJson, MediaType.APPLICATION_JSON));
+
+        Page<BeerDTO> dtos = beerClient.listBeers();
+        assertThat(dtos.getContent().size()).isGreaterThan(0);
+    }
+
+    BeerDTO getBeerDto() {
+        return BeerDTO.builder()
+                .id(UUID.randomUUID())
+                .beerName("New Beer")
+                .beerStyle(BeerStyle.STOUT)
+                .upc("123456789012")
+                .price(new BigDecimal(11.49))
+                .quantityOnHand(2)
+                .build();
+    }
+
+    BeerDTOPageImpl getPage() {
+        return new BeerDTOPageImpl(Arrays.asList(getBeerDto()), 1,25,1);
+    }
+}

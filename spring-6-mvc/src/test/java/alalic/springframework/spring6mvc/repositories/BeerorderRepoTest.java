@@ -2,20 +2,19 @@ package alalic.springframework.spring6mvc.repositories;
 
 import alalic.springframework.spring6mvc.entities.Beer;
 import alalic.springframework.spring6mvc.entities.BeerOrder;
+import alalic.springframework.spring6mvc.entities.BeerOrderShipment;
 import alalic.springframework.spring6mvc.entities.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 class BeerorderRepoTest {
 
     @Autowired
-    BeerorderRepo beerorderRepo;
+    BeerOrderRepo beerorderRepo;
 
     @Autowired
     CustomerRepo customerRepo;
@@ -42,11 +41,15 @@ class BeerorderRepoTest {
         System.out.println(testBeer.getBeerName());
     }
 
+    @Transactional
     @Test
     void testBearorders() {
         BeerOrder beerorder = BeerOrder.builder()
                 .customerRef("Test Order")
                 .customer(testCustomer)
+                .beerOrderShipment(BeerOrderShipment.builder()
+                        .trackingNumber("12345")
+                        .build())
                 .build();
 
         BeerOrder savedBeerOrder = beerorderRepo.save(beerorder);

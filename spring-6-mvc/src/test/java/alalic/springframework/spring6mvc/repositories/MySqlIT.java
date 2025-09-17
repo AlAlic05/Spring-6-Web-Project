@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MySqlIT {
     @Container
     @ServiceConnection
-    static MySQLContainer mysqlContainer = new MySQLContainer("mysql:8.0");
+    static MySQLContainer mysqlContainer = new MySQLContainer("mysql:8.0").withDatabaseName("restdb");
 
     @Autowired
     BeerRepo beerRepo;

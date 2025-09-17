@@ -28,7 +28,7 @@ public class BeerServiceJPA implements BeerService {
     private final BeerMapper beerMapper;
 
     private final static int DEFAULT_PAGE = 0;
-    private final static int DEFAULT_PAGE_SIZE = 0;
+    private final static int DEFAULT_PAGE_SIZE = 25;
 
     @Override
     public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Integer pageNumber, Integer pageSize) {
@@ -64,31 +64,25 @@ public class BeerServiceJPA implements BeerService {
         return beerRepo.findAllByBeerNameIsLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle, pageRequest);
     }
 
-    public PageRequest buildPageRequest (Integer pageNumber, Integer pageSize){
+    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
         int queryPageNumber;
         int queryPageSize;
 
-        if(pageNumber != null || pageSize > 0){
+        if (pageNumber != null && pageNumber > 0) {
             queryPageNumber = pageNumber - 1;
-        }
-        else {
+        } else {
             queryPageNumber = DEFAULT_PAGE;
         }
 
-        if(pageSize == null){
+        if (pageSize == null || pageSize <= 0) {
             queryPageSize = DEFAULT_PAGE_SIZE;
-        }
-        else{
-            if(pageSize > 1000){
-                queryPageSize = 1000;
-            }
-            else{
-                queryPageSize = pageSize;
-            }
+        } else if (pageSize > 1000) {
+            queryPageSize = 1000;
+        } else {
+            queryPageSize = pageSize;
         }
 
         Sort sort = Sort.by(Sort.Order.asc("beerName"));
-
         return PageRequest.of(queryPageNumber, queryPageSize, sort);
     }
 
@@ -112,6 +106,8 @@ public class BeerServiceJPA implements BeerService {
             foundBeer.setBeerStyle(beer.getBeerStyle());
             foundBeer.setPrice(beer.getPrice());
             foundBeer.setUpc(beer.getUpc());
+            foundBeer.setQuantityOnHand(beer.getQuantityOnHand());
+            foundBeer.setVersion(beer.getVersion());
             atomicReference.set(Optional.of(beerMapper
                     .beerToBeerDTO(beerRepo.save(foundBeer))));
         }, () -> {

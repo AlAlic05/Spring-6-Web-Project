@@ -18,6 +18,7 @@ class CategoryRepoTest {
 
     @Autowired
     BeerRepo beerRepo;
+
     Beer testBeer;
 
     @BeforeEach
