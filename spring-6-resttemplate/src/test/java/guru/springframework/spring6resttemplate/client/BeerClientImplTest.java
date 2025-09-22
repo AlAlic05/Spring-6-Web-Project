@@ -17,82 +17,84 @@ import static org.junit.jupiter.api.Assertions.*;
 class BeerClientImplTest {
 
     @Autowired
-    BeerClientImpl beerClient;;
+    BeerClientImpl beerClient;
 
     @Test
     void testDeleteBeer() {
         BeerDTO newDto = BeerDTO.builder()
-                .beerName("New Beer")
+                .price(new BigDecimal("10.99"))
+                .beerName("Mango Bobs 2")
                 .beerStyle(BeerStyle.IPA)
-                .upc("123456789012")
-                .price(new BigDecimal(72.49))
-                .quantityOnHand(2)
+                .quantityOnHand(500)
+                .upc("123245")
                 .build();
 
-        BeerDTO beerDTO = beerClient.createBeer(newDto);
-        beerClient.deleteBeer(beerDTO.getId());
+        BeerDTO beerDto = beerClient.createBeer(newDto);
+
+        beerClient.deleteBeer(beerDto.getId());
 
         assertThrows(HttpClientErrorException.class, () -> {
-            beerClient.getBeerById(beerDTO.getId());
+            //should error
+            beerClient.getBeerById(beerDto.getId());
         });
     }
 
     @Test
     void testUpdateBeer() {
+
         BeerDTO newDto = BeerDTO.builder()
-                .beerName("New Beer")
+                .price(new BigDecimal("10.99"))
+                .beerName("Mango Bobs 2")
                 .beerStyle(BeerStyle.IPA)
-                .upc("123456789012")
-                .price(new BigDecimal(72.49))
-                .quantityOnHand(2)
+                .quantityOnHand(500)
+                .upc("123245")
                 .build();
 
-        BeerDTO beerDTO = beerClient.createBeer(newDto);
-        final String updatedName = "Updated Name";
-        beerDTO.setBeerName(updatedName);
-        BeerDTO updatedBeer = beerClient.updateBeer(beerDTO);
+        BeerDTO beerDto = beerClient.createBeer(newDto);
 
-        assertEquals(updatedName, updatedBeer.getBeerName());
+        final String newName = "Mango Bobs 3";
+        beerDto.setBeerName(newName);
+        BeerDTO updatedBeer = beerClient.updateBeer(beerDto);
+
+        assertEquals(newName, updatedBeer.getBeerName());
     }
 
     @Test
     void testCreateBeer() {
+
         BeerDTO newDto = BeerDTO.builder()
-                .beerName("New Beer")
+                .price(new BigDecimal("10.99"))
+                .beerName("Mango Bobs")
                 .beerStyle(BeerStyle.IPA)
-                .upc("123456789012")
-                .price(new BigDecimal(72.49))
-                .quantityOnHand(2)
+                .quantityOnHand(500)
+                .upc("123245")
                 .build();
 
         BeerDTO savedDto = beerClient.createBeer(newDto);
         assertNotNull(savedDto);
     }
 
-
     @Test
     void getBeerById() {
-        Page<BeerDTO> beerDtos = beerClient.listBeers();
-        BeerDTO dto = beerDtos.getContent().get(0);
 
-        BeerDTO dtoById = beerClient.getBeerById(dto.getId());
+        Page<BeerDTO> beerDTOS = beerClient.listBeers();
 
-        assertNotNull(dtoById);
+        BeerDTO dto = beerDTOS.getContent().get(0);
+
+        BeerDTO byId = beerClient.getBeerById(dto.getId());
+
+        assertNotNull(byId);
     }
 
     @Test
     void listBeersNoBeerName() {
-        beerClient.listBeers(null, null, 1,25);
-    }
 
-
-    @Test
-    void listBeersWithName() {
-        beerClient.listBeers("ALE", BeerStyle.ALE.toString(), 1, 25);
+        beerClient.listBeers(null, null, null, null);
     }
 
     @Test
-    void listBeerWithStyle() {
-        beerClient.listBeers(null, BeerStyle.ALE.toString(), 1, 25);
+    void listBeers() {
+
+        beerClient.listBeers("ALE", null, null, null);
     }
 }
