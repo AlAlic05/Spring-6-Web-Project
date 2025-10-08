@@ -19,13 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequiredArgsConstructor
 public class BeerController {
+
     public static final String BEER_PATH = "/api/v2/beer";
     public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
 
     private final BeerService beerService;
 
     @DeleteMapping(BEER_PATH_ID)
-    Mono<ResponseEntity<Void>> deleteBeer(@PathVariable Integer beerId) {
+    Mono<ResponseEntity<Void>> deleteById(@PathVariable Integer beerId){
         return beerService.getBeerById(beerId)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
                 .map(beerDto -> beerService.deleteBeerById(beerDto.getId()))
@@ -51,23 +52,23 @@ public class BeerController {
 
 
     @PostMapping(BEER_PATH)
-    Mono<ResponseEntity<Void>> createNewBeer(@RequestBody @Validated BeerDTO beerDTO){
+    Mono<ResponseEntity<Void>> createNewBeer(@Validated @RequestBody BeerDTO beerDTO){
         return beerService.saveNewBeer(beerDTO)
                 .map(savedDto -> ResponseEntity.created(UriComponentsBuilder
-                                .fromHttpUrl("http://localhost:8888/" + BEER_PATH
+                                .fromHttpUrl("http://localhost:8080/" + BEER_PATH
                                         + "/" + savedDto.getId())
                                 .build().toUri())
                         .build());
     }
 
-
     @GetMapping(BEER_PATH_ID)
-    Mono<BeerDTO> getBeerById(@PathVariable Integer beerId) {
-        return beerService.getBeerById(beerId);
+    Mono<BeerDTO> getBeerById(@PathVariable("beerId") Integer beerId){
+        return beerService.getBeerById(beerId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     @GetMapping(BEER_PATH)
-    Flux<BeerDTO> listBeers() {
+    Flux<BeerDTO> listBeers(){
         return beerService.listBeers();
     }
 }
